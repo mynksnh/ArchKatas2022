@@ -192,6 +192,7 @@ The following sections describes the overall workflow, the differences between h
 + App on the Citizen's device establishes a websocket connection to the url provided in the previous step.
 + App sends location updates to the server over the websocket connection, message processor looks up the location of the closest police officer from the in-memory graph store and sends it over the same connection, along with other relevant profile data.
 + The message processor is responsible for removing the officer's location from the in-memory cache 15 minutes after it added it. Once the 15 minute window expires the websocket connection is closed and the orchestrator is notified. Orchestrator removes the tuple it added earlier from it's local db.
+
 **Proximity Detection**  
 Proximity detection can happen in of two ways
 1.    Bluetooth based proximity detection, similar to how Covid Tracking apps work
