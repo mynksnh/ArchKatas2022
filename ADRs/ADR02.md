@@ -19,3 +19,4 @@ Positive:
 
 Negative:
 + Increase development effort when trying to support multiple interfaces for the same functionality
++ Decoupling interfaces from components will require additional service framework scaffolding
