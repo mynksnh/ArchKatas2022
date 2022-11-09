@@ -176,7 +176,7 @@ In our proposed architecture, each instance of the Connections manager service w
 The service itself comprises of an Orchestrator component and a message processor. The message processor is a perpetually running async task that maintains a websocket connection pool with each connection in the pool mapped to a distinct url. The Orchestrator keeps track of free and busy websocket connections by getting notifications from the Message Processor (Observer design pattern)
 The following sections describes the overall workflow, the differences between how the server and app handle citizen and officer requests should be noted
 
-**Location Tracking**
+**Location Tracking**  
 + Officer turns on location services and makes themselves available for connection within a 15 minute window via the client app
 + App makes a GET request recieved by the orchestrator component on behalf of the officer. The request must include officer's current geolocation (Lat,Long),zipcode and sufficent information to uniquely identify the account and profile (AccountID, ProfileID). If the zipcode is not included in the request, the server will be responsible for mapping the geolocation to a zip code
 + Orchestrator determines the request is coming from an officer (separate endpoints for officer and citizen is one way of achieving this)
@@ -201,11 +201,11 @@ Bluetooth based proximity detection does not require a constantly sending and re
 
 The other method is to calculate proximity and then notify the user when they are within the threshold.
 
-**Handling Notifications**
+**Handling Notifications**  
 Our architecture recommends using device triggered notifications instead of server pushed notifications [ADR07](/ADRs/ADR07.md). This is a significant decision as it is one less component to implement to will need to depend on one or more third party services (Apple APNs or Firebase cloud messaging). The architecture is however permissive enough to eventually incorporate server pushed notifications with minor changes to Connections Manager Service.  
 The relevant classes for background services are subclasses of UNNotificationTrigger (swift) on iOS and the Service (java) class on Android.
 
-**Establish Connection**
+**Establishing Connection**  
 Once a citizen is notified they are close to an officer accepting connections, they can request a connection via the App UI, which triggers another Http request to the orchestrator. The orchestrator looks up the message processor that is currently handling an open connection to the officer and calls it to send a message that will trigger an in app notification on the officer's device along with the details of the requesting citizen. If the officer accepts, the app requests the Orchestrator to register a successful connection and put an event on the "Established connections" topic.
 
 ![Connections Manager](/Diagrams/connections.png)
