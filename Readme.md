@@ -38,7 +38,6 @@ Mayank Sinha
     - [Social Media API Manager](#social-media-api-manager)
 - [Code](#code)
 - [Deployment](#deployment)
-- [Fitness Functions](#fitness-functions)
 - [Cost Analysis](#cost-analysis)
 - [ADRs](#adrs)
 - [References](#references)
@@ -102,7 +101,7 @@ TODO: Expand
 Reliability
 Recoverability
 
-TODO: Provider Reasons, Cost of downtime is low
+TODO: Provide Reasons, Cost of downtime is low
 
 ## Context
 We start modelling the architecture of the system by envisioning the entire system as a black box. The Context model identifies all external actors and their interactions with the system.
@@ -212,7 +211,12 @@ Once a citizen is notified they are close to an officer accepting connections, t
 ![Connections Manager](/Diagrams/connections.png)
 
 ### Rewards Manager
-TODO: Add text
+The Rewards manager is responsible handling point redemptions and donations by Citizens and Officers respectively.
+The service intially serves the data for the views where the users can make these transactions. The Storefront offers, municipal schemes and Charity views are made available to users on the app, the users can then choose how they may use the points they have accrued by making connections.
+Whenever a points transaction is recorded two representations of the event are put on outbound message channels to be consumed by the ProfileManager and the Reporting and Analytics service.]
+
+TODO: Complete section
+
 ![Connections Manager](/Diagrams/rewards.png)
 ### ETL Manager
 TODO: Add text
@@ -242,7 +246,7 @@ Additional pending tasks: Add workflow diagrams for each microservice
 
 
 ## References
-TODO: Add references
+TODO: Fix references
 https://learning.oreilly.com/videos/oreilly-software-architecture/9781492050728/9781492050728-video328572/
 
 https://alistair.cockburn.us/hexagonal-architecture/
