@@ -247,7 +247,7 @@ TODO: add an estimated cost anaysis for 1000 active citizens and 10 officers
 [ADR5 CQRS for message based Profile updates  ](/ADRs/ADR05.md)  
 [ADR6 Use in memory graph store for caching and looking up Officer geolocation](/ADRs/ADR06.md)  
 [ADR7 Device triggered notications with geofencing instead of server push ](/ADRs/ADR07.md)  
-[ADR8 Event](/ADRs/ADR08.md)  
+[ADR8 Event Sourcing](/ADRs/ADR08.md)  
 
 Additional pending tasks: Add workflow diagrams for each microservice
 
