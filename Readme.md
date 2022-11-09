@@ -240,14 +240,14 @@ TODO: Model a sample deployment on GCP
 TODO: add an estimated cost anaysis for 1000 active citizens and 10 officers
 
 ## ADRs
-[ADR1 Microservices Architecture](/ADRs/ADR01.md) . 
-[ADR2 Hexagonal Microservices](/ADRs/ADR02.md) . 
-[ADR3 REST API over Http and Pub/Sub pattern over Websocket protocol](/ADRs/ADR03.md) . 
-[ADR4 Use of an API layer as the externally accessible interface to the system](/ADRs/ADR04.md) . 
-[ADR5 CQRS for message based Profile updates  ](/ADRs/ADR05.md) . 
-[ADR6 Use in memory graph store for caching and looking up Officer geolocation](/ADRs/ADR06.md) . 
-[ADR7 Device triggered notications with geofencing instead of server push ](/ADRs/ADR07.md) . 
-[ADR8 Event](/ADRs/ADR08.md) . 
+[ADR1 Microservices Architecture](/ADRs/ADR01.md)  
+[ADR2 Hexagonal Microservices](/ADRs/ADR02.md)  
+[ADR3 REST API over Http and Pub/Sub pattern over Websocket protocol](/ADRs/ADR03.md)  
+[ADR4 Use of an API layer as the externally accessible interface to the system](/ADRs/ADR04.md)  
+[ADR5 CQRS for message based Profile updates  ](/ADRs/ADR05.md)  
+[ADR6 Use in memory graph store for caching and looking up Officer geolocation](/ADRs/ADR06.md)  
+[ADR7 Device triggered notications with geofencing instead of server push ](/ADRs/ADR07.md)  
+[ADR8 Event](/ADRs/ADR08.md)  
 
 Additional pending tasks: Add workflow diagrams for each microservice
 
