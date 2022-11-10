@@ -20,7 +20,7 @@ Will we use an in memory cache with a graph data structure to find the closest a
 
 ## Consequences
 Positive  
-+ Reduce latency, faster lookups
-Negative  
++ Reduce latency, faster lookups  
+Negative   
 + Increased hardware/memory requirements
 + Will need to be tested at scale

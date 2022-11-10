@@ -20,7 +20,7 @@ Positive:
 + Both REST and Pub/Sub are language agnostic patterns
 + Both REST and Pub/Sub allow identifying and accessing 
 + Every web server framework has implicit support for both underlying protocols
-+ Both REST and Pub/Sub are abstractions that do not require specific serialization for their message payloads
++ Both REST and Pub/Sub are abstractions that do not require specific serialization for their message payloads  
 Negative:  
 + Higher development effort initially if we do not use out of the box messaging solutions
 + We will have rewrite the a lot of the underlying implementation when switching to a proprietary message broker tool

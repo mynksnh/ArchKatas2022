@@ -14,6 +14,6 @@ We will use device triggered notifications and geofencing APIs on background ser
 
 ## Consequences
 Postive:
-+ Removes the need to develop and maintain an additional service and subscribe to a third part notification provider
-Negative:
++ Removes the need to develop and maintain an additional service and subscribe to a third part notification   
+Negative:  
 + Background services on mobile devices may affect performance, battery life

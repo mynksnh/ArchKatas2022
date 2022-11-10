@@ -14,6 +14,6 @@ We will use the CQRS pattern to apply message driven updates to User profiles wh
 
 ## Consequences
 Positive:
-+ Allows for automated asynchronous updates to User Profiles triggered within the system
-Negative:
++ Allows for automated asynchronous updates to User Profiles triggered within the system  
+Negative:  
 + Increase implementation complexity

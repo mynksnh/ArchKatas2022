@@ -12,9 +12,9 @@ We will use an API layer to expose the unified public facing interface of the He
 
 ## Consequences
 Positive:
-+ API layer can be used to cross cutting concerns like load balancing, logging and monitoring, authentication 
++ API layer can be used to cross cutting concerns like load balancing, logging and monitoring, authentication  
 
-Adverse:
+Adverse:  
 
 + Development overhead of creating and maintaining an additional component
 + Possible increased latency due to API layer having to route requests to target component

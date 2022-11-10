@@ -17,6 +17,6 @@ Positive:
 + Allows us to support multiple UIs for the same read model
 + Allows us to swap out components without changing the interface, a specific application of dependency inversion
 
-Negative:
+Negative:  
 + Increase development effort when trying to support multiple interfaces for the same functionality
 + Decoupling interfaces from components will require additional service framework scaffolding

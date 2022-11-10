@@ -14,7 +14,7 @@ We will use event sourcing for transactional events that need to be consumed by 
 ## Consequences
 Postive:
 + Reduces coupling between microservices
-+ Additional services that may need the same data may subscribe to the relevant topics
-Negative:
++ Additional services that may need the same data may subscribe to the relevant topics  
+Negative:  
 + Data and code duplication
 + Transactions could be missed due to service downtime
