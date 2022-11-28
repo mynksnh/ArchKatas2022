@@ -136,15 +136,17 @@ Next, we add an API layer to extract the publically accessible interface of the 
 
 ![API Layer](/Diagrams/apiLayer.png)
 
+In the above diagram, the API layer only serves requests from public mobile-app based clients. This is on purpose, the administrative/organizational users will make up a small fraction of the total user base of the system. Their use cases are also different from reqular users, thus it makes sense for them to have separate APIs for accessing relevant services, with their own authentication mechanism.
+
 ### Coupling and Architecture Quanta
 Finally we close out the service containers section with a discussing of coupling between the services and architecure quanta. 
 
 The previous diagram showed 8 distinct containers including the API layer.
 Since the API layer is simply a proxy, it does not include any domain specific functionality or perform any workflow orchestration, we can omit it from this section.
 
-![quanta](/Diagrams/quanta.png)
-
 The following diagram illustrates how the remaining services are coupled, that databases they own or share, and the domain entities in those databases.
+
+![quanta](/Diagrams/quanta.png)
 
 **Static Coupling**
 + The ETL service and the Rewards Manager microservice are statically coupled through a shared database. We could make a case for separating transactions from master data into two separate databases, where ETL only writes to the master database and Rewards manager only reads from it as shown in the diagram. This however does not do much to reduce the contract coupling introduced by shared data they have to work with. The diagram shows to separate databases for clarity and semantic reasons
@@ -224,7 +226,7 @@ The other method is to calculate proximity on the server and then allow the citi
 ![latlonggraph](/Diagrams/latlongGraph.png)
 
 **Handling Notifications**  
-Our architecture recommends using device triggered notifications along with server pushed notifications [ADR07](/ADRs/ADR07.md).
+Our architecture recommends using device triggered notifications along with server pushed notifications (See  [ADR07-Device trigerred notifications](/ADRs/ADR07-Device-triggered-notifications.md)).
 The relevant classes for background services are subclasses of UNNotificationTrigger (swift) on iOS and the Service (java) class on Android.
 
 **Establishing Connection**  
@@ -251,11 +253,11 @@ Most social media platforms allow posting data through REST based APIs. The soci
 ![Social Media API](/Diagrams/social.png)
 
 ## Deployment
-The following diagram models a sample deployment of the Hey Blue! system on the Google Cloud Platform. A brief overview of the relevant GCP services follows
+The next diagram models a sample deployment of the Hey Blue! system on the Google Cloud Platform. A brief overview of the involved GCP services follows
 
 ![gcp](/Diagrams/gcp.png)
 
-The Cloud Run google service is meant for deploying containerized applications with support for horizontal scaling, load balancing and maintenance of minimum active instances. Cloud run would be used for deploying the Connections, Profile and Rewards microservices.
+The Cloud Run GCP service is meant for deploying containerized applications with support for horizontal scaling, load balancing and maintenance of minimum active instances. Cloud run would be used for deploying the Connections, Profile and Rewards microservices.
 
 The API gateway allows registration of endpoints for services deployed on GCP (such as Cloud Run) and allows authentication, routing, monitoring, alerting, logging, and tracing of calls to registered services. The API gateway can authenticate requests via the Firebase authentication service, which can completely stand in for the IAM service described in our architecture.
 
