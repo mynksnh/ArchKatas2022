@@ -38,6 +38,7 @@ Mayank Sinha
     - [Social Media API Manager](#social-media-api-manager)
 - [Deployment](#deployment)
 - [Cost Analysis](#cost-analysis)
+- [Evaluation, Risks and Architecture Fitness](#evaluation-risks-and-architecture-fitness)  
 - [ADRs](#adrs)
 - [References](#references)
 
@@ -118,23 +119,23 @@ Figure 1 shows how our top 3 architecture characteristics score against formal s
 We start modelling the architecture of the system by envisioning the entire system as a black box. The Context model identifies all external actors and their interactions with the system.
 
 ### Actors and Use Cases
-The users of the application fall into 2 categories. The public users will interact with the system using a mobile app, while the administrative and organisational use cases are more back end related, like data upload and ETL, reporting etc.  
+The users of the application fall into 2 categories. The public users will interact with the system using a mobile app, while the administrative and organisational use cases are more back end related, like data upload and ETL, reporting etc. Admin/Org users will interact with the system through a web based dashboard.  
 
 ![blackBox](/Diagrams/blackbox.png)
 *Figure 2 Use Cases*
 
 ### Event Storming
 The next step is zooming into the black box. The prerequisite to our goal of modelling the system as a set of independent microservices is to start with domain partitioning. To accomplish this we used the event storming process.
-Event-storming begins with initially identifying "Domain Events". A Domain event is something that happens within the system. As per the process, we identify as many domain events as we can and put each one on an orange sticky note on a virtual whiteboard.
+Event-storming begins with initially identifying "Domain Events". A Domain event is something that happens within the system. It is described by a ubiquitous language entity followed by a verb or action on that entity. Each use case in Figure 2 maps to one or more domain events shown here. As per the process, we identify as many domain events as we can and put each one on an orange sticky note on a virtual whiteboard.
 
 ![Ad-Hoc Domain Events](/Diagrams/domainEvents.png)
 *Figure 3 Domain Events*
 
-Subsequently we identify the commands that trigger these domain events. While a domain event is something that happens within the system, the command is the action that triggers a series of domain events. Commands invoked by external actors are explicitly identified. Certain commands do not have an associated actor, which implies that it was invoked internally within the system.
+Subsequently we identify the commands that trigger these domain events. While a domain event is something that happens within the system, the command is the action that triggers a series of domain events. Commands invoked by external actors are explicitly identified. Certain commands do not have an associated actor, which implies that it was invoked internally within the system. We organise the related sets of commands  and domain events together into sets of related aggregates.
 ![adding commands](/Diagrams/commandsAndActors.png)
 *Figure 4 Commands, Actors and Aggregates*
 
-Next, we identify the automation policies that invoke commands that do not have an associated actor to complete the picture.
+Next we determine the automation policies for the commands that do not have an associated external actor and are triggered when a certain domain event completes. The automation policies indicate asynchronous communication coupling between the bounded contexts. Grouping the semantically related aggregates together gives us the bounded contexts and the blueprint for individual microservices. 
 ![bounded contexts](/Diagrams/automationPolicies.png)
 *Figure 5 Automation Policies and Bounded Contexts*
 
@@ -142,13 +143,15 @@ The above diagram gives us the boundaries of our bounded contexts and the event 
 
 ## Containers
 ### Modular Monolith
-The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.
-
+The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.s
 ![Modular Monolith](/Diagrams/modMono.png)
 *Figure 6 Modular Monolith*
 
 ### Service Containers
 The previous section described a single container, comprising of multiple modules. It did not give us any information about how the modules are coupled. The next step therefore is to segregate the container along the boundaries of our bounded contexts. The following diagram illustrates the the interactions between the various microservices and the external actors.
+
+**Note**   
+Synchronous communication coupling between the services is omitted from this diagram for clarity, but it is shown in figure 9 and discussed in the related section
 
 ![Service Containers](/Diagrams/containers.png)
 *Figure 7 Service Containers*
@@ -159,7 +162,7 @@ Next, we add an API layer to extract the publically accessible interface of the 
 ![API Layer](/Diagrams/apiLayer.png)
 *Figure 8 API Layer*
 
-**Note**
+**Note**  
 In the above diagram, the API layer only serves requests from public mobile-app based clients. This is on purpose, the administrative/organizational users will make up a small fraction of the total user base of the system. Their use cases are also different from reqular users, thus it makes sense for them to have separate APIs for accessing relevant services. Identity, access control and authentication mechanisms for administrative users are also significantly different from those of public users who do not have access to internal infrastructure, data and services. 
 
 ### Coupling and Architecture Quanta
@@ -181,6 +184,8 @@ The following diagram illustrates how the remaining services are coupled, that d
 + The Rewards and Connections services synchronously requests data from the Profile service
 + The Profile service asynchronously ingests messages/events from Rewards and Connections services
 + The Reporting and analytics service asynchronously ingests messages/events from the Profile service
+
+The Social Media API does not depend upon any other services, it is invoked directly from admin dashboards. It is in a sort of middle ground, where it’s trivial enough not warrant it’s own Microservice, but semantically it does not make sense to make it part of other services we have defined.
 
 Given the shared database between the ETL and Rewards service, the system architecure has a quanta of 6, illustrated by the dashed lines in the above diagram.
 
@@ -345,7 +350,7 @@ This final section is a discussion of how the proposed architecture adheres to t
 + Extensibility - The combination of Microservices, event driven communication and serverless depolyment lends itself well to an extensible architecture, allowing new components and services to be introduced to serve additional requirements and use cases. However, it is difficult to test a system for extensibilty, strict adherence to loose coupling and high cohesion between components is needed.
 
 *Risks*
-+ Databases could be a bottleneck to horizontal scalability. Sharding and replication tools are possible mitigation strategies
++ Databases could be a bottleneck to horizontal scalability. Serverless database services/tools, sharding and replication services/tools are possible mitigation strategies
 + Testability of event driven workflows involving multiple services. Tests for individual microservices will also need to include comprehensive cases for distributed workflows
 
 ## ADRs
