@@ -1,3 +1,5 @@
+[Back](/Readme.md)
+
 # ADR 3: REST based API over Http for synchronous requests and websockets for messages over the web
 This ADR describes the APIs and the communication protocols we will use for communication with client applications
 
@@ -11,6 +13,8 @@ RESTful APIs are an established standard designed specifically for Http based co
 
 For message based communication over the web, the alternatives to websockets are Server sent events and gRPC. 
 Server sent events only allow an event stream in one direction, from server to client. Websocket client libraries for mobile, desktop and web based clients have wider availability in application frameworks than gRPC.
+
+Use of events streams in public APIs is rare. Uber for example, currently uses SSE in their [RAMEN](https://www.uber.com/en-IN/blog/real-time-push-platform/) real time push platform, which they are looking to upgrade to gRPC
 
 ## Decision 
 We will use REST over Http and websockets to implement our public APIs

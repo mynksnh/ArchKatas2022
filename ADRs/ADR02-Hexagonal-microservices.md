@@ -1,3 +1,5 @@
+[Back](/Readme.md)
+
 # ADR 2: Hexagonal Microservices 
 
 ## Status
@@ -13,9 +15,9 @@ We will use the Hexagonal architectural pattern for designing our microservices
 
 ## Consequences
 Positive:
-+ Hexagonal service design promotes independently testable components
++ Hexagonal service design promotes independently testable services
 + Allows us to support multiple UIs for the same read model
-+ Allows us to swap out components without changing the interface, a specific application of dependency inversion
++ Allows us to swap out components without changing the interface, or add additional interfaces for access to the same component
 
 Negative:  
 + Increase development effort when trying to support multiple interfaces for the same functionality

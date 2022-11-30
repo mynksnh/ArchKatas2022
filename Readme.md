@@ -57,8 +57,8 @@ The provided requirements document is available [here](https://docs.google.com/d
 + Non-profit organization needs to build and support the system with revenue generated from an affiliate marketing model
 + Initial funding for the project comes from grants and sponsorships
 ### Assumptions
-+ The system does not support financial transactions. The citizens can browse point based discount offers provided by retailers on the app. However the actual purchase happens on the retailer's own system or in store. The system is only responsible for generating verifiable vouchers and coupons when citizens redeem points.
-+ Charities are allowed to redeem the monetary value of points donated . Retailers must provide a way for them to do that off-system
++ The system does not support financial transactions. The citizens can browse point based discount offers provided by retailers on the app. However the actual purchase happens on the retailer's own system or in store. The system is only responsible for generating verifiable vouchers and coupons when citizens redeem points. (This was mentioned by the founder in the initial discussion)
++ Charities are allowed to redeem the monetary value of points donated . Retailers must provide a way for them to do that off-system. 
 
 ## Architecture Characteristics
 The following section highlights the salient architecure characteristics we consider crucial to a successful implementation of the system.
@@ -76,7 +76,7 @@ The following section highlights the salient architecure characteristics we cons
 
 ### Implicit Characteristics
 **Security**  
-We are transmitting and maintaining user's personal data such as their emails, phone numbers and locations over the web. The data needs to be secured in transit and at rest using appropriate encryption mechanisms. There is also need to be able to deidentify when it needs to be accessed by the development team or other business stakeholders.  
+We are transmitting and maintaining user's personal data such as their emails, phone numbers and locations over the web. The data needs to be secured in transit and at rest using appropriate encryption mechanisms. Also, there is need for data de-identification mechanisms and zero-trust verification policies when data needs to be accessed by the development team, admistrative users or other business stakeholders.  
 **Usability**    
 The system is meant to accessed via mobile apps primarily by non-technical users. The need for it to be intuitive and usable is implicit.  
 **Cost**  
@@ -87,36 +87,56 @@ While the system is not mission critical, and cost of downtime is low, it still 
 **Recoverability**
 In case of service downtime, the system needs to be able to recover in a consistent state.
 
+
 ## Architecture Approach
-+ We will begin by identifying the significant architecture characteristics relevant to our proposed solution, these will be the driving factors that impact our design and architecure decisions
++ We begin eith identifying the significant architecture characteristics relevant to our proposed solution, these will be the driving factors that impact our design and architecure decisions
 + We will use the C4 model to describe our solution initially treating the system as black box while identifying external actors and use cases. At each subsequent level we will zoom into the black box to describe the containers, its consitituent components, their inter-dependencies and communcation mechanisms
 + We use the event storming process to determine the bounded contexts and aggregates within the proposed system.
-+ We will compose the architecture as a set of cohesive microservices. We will desribe these microservices in a tool and technology agnostic manner, see [ADR1 - Microservices Architecture](ADRs/ADR01-Microservices-architecture.md).
++ We will compose the architecture as a set of cohesive microservices with both synchronous and event driven communication mechanisms. We will desribe these microservices in a tool and technology agnostic manner, see [ADR1 - Microservices Architecture](ADRs/ADR01-Microservices-architecture.md).
 
 ### Goals
 **"Microservices are not the goal, you don't win by having microservices"** - Sam Newman
 
 + The architecture we describe here is not meant to be prescriptive. The Hey Blue! system could even be developed and deployed as a modular monolith, combining all services to run on a single container, which could then be scaled by deploying multiple instances of it. This could indeed be the approach taken initially for rapidly prototyping a minimum viable product at a reduced overall cost of development.
 + We apply the priciple of Hexagonal Architecture to model individual microservices. The internal components or "ports" within a microservice expose one or more interfaces or "adapters" that serve the needs of downstream consumers. For example, some component within a microservice may expose it's functionality over a REST, SOAP or RPC based interface. We may maintain multiple adapters for a single port at the same time or swap out the port if the need arises without the adapter having to change. Interface definition is thus pushed out to be an extrinsic configuration concern. Also see [ADR02 - Hexagonal Microservices](ADRs/ADR02-Hexagonal-microservices.md)
-+ We will attempt to keep our architectural description tool and framework agnostic. As mentioned before we want to avoid early lock in with specfic tools. To that end, all intra, inter, and extra service communication APIs will be described in language agnostic terms - REST over Http for Request/Response based communication, Pub/Sub pattern over Websockets protocol for message and event driven or duplex communication over a single channel. See [ADR03 - REST over http and websockets](ADRs/ADR03-Rest-over-http-and-websockets.md)
++ We will attempt to keep our architectural description tool and framework agnostic. As mentioned before we want to avoid early lock in with specfic tools. To that end, all intra, inter, and extra service communication APIs will be described in language agnostic terms. See [ADR03 - REST over http and websockets](ADRs/ADR03-Rest-over-http-and-websockets.md)
+
+**A discussion regarding architecture characteristics and microservices**  
+
+Figure 1 shows how our top 3 architecture characteristics score against formal system architecture styles.
+
+![characteristics](/Diagrams/characteristics.png)
+*Figure 1 Architecture Characteristics*
+
++ It is incidental that the architectural styles we have chosen have scored the highest number of stars against the top 3 chosen characteristics.
++ Even though Microservices score low on performance, which is one of our top 3 characteristics, we still primarily use Microservices as part of our proposed system architecture. The reason for that is, this performance penalty is applicable to the entire system comprising of independent Microservices, because of the inherent latency introduced by network IO and transaction management in a distributed system. The performance penalty however does not apply to individual microservices, in cases where one service has much higher performance requirements than others. In such cases it makes sense to isolate the performance critical functionality into a micro service that might serve a much higher number of requests compared to the rest of the system. This is the approach we take to mitigate this overall performance penalty. 
++ Microservices are inclusive of the other event driven and serverless architecture styles for the following reasons
+1. Event driven architecture is really about message based asynchronous communication between components of the system. Nothing about Microservices prohibits us from using both synchronous and asynchronous components and communication mechanisms for the same service.
+2. Serverless architectures are really about stateless microservices. Microservices can be deployed on a serverless platform with the caveat that the services themselves be containerised & stateless applications.
 
 ## Context
 We start modelling the architecture of the system by envisioning the entire system as a black box. The Context model identifies all external actors and their interactions with the system.
 
 ### Actors and Use Cases
+The users of the application fall into 2 categories. The public users will interact with the system using a mobile app, while the administrative and organisational use cases are more back end related, like data upload and ETL, reporting etc.  
+
 ![blackBox](/Diagrams/blackbox.png)
+*Figure 2 Use Cases*
 
 ### Event Storming
 The next step is zooming into the black box. The prerequisite to our goal of modelling the system as a set of independent microservices is to start with domain partitioning. To accomplish this we used the event storming process.
 Event-storming begins with initially identifying "Domain Events". A Domain event is something that happens within the system. As per the process, we identify as many domain events as we can and put each one on an orange sticky note on a virtual whiteboard.
 
 ![Ad-Hoc Domain Events](/Diagrams/domainEvents.png)
+*Figure 3 Domain Events*
 
 Subsequently we identify the commands that trigger these domain events. While a domain event is something that happens within the system, the command is the action that triggers a series of domain events. Commands invoked by external actors are explicitly identified. Certain commands do not have an associated actor, which implies that it was invoked internally within the system.
 ![adding commands](/Diagrams/commandsAndActors.png)
+*Figure 4 Commands, Actors and Aggregates*
 
 Next, we identify the automation policies that invoke commands that do not have an associated actor to complete the picture.
 ![bounded contexts](/Diagrams/automationPolicies.png)
+*Figure 5 Automation Policies and Bounded Contexts*
 
 The above diagram gives us the boundaries of our bounded contexts and the event driven connections between them
 
@@ -125,18 +145,22 @@ The above diagram gives us the boundaries of our bounded contexts and the event 
 The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.
 
 ![Modular Monolith](/Diagrams/modMono.png)
+*Figure 6 Modular Monolith*
 
 ### Service Containers
 The previous section described a single container, comprising of multiple modules. It did not give us any information about how the modules are coupled. The next step therefore is to segregate the container along the boundaries of our bounded contexts. The following diagram illustrates the the interactions between the various microservices and the external actors.
 
 ![Service Containers](/Diagrams/containers.png)
+*Figure 7 Service Containers*
 
 ### API Layer
 Next, we add an API layer to extract the publically accessible interface of the system. Instead of external users directly connecting to the individual services via a GUI, all external requests will be routed through the API layer. Also see [ADR04-API-layer](/ADRs/ADR04-API-Layer.md)
 
 ![API Layer](/Diagrams/apiLayer.png)
+*Figure 8 API Layer*
 
-In the above diagram, the API layer only serves requests from public mobile-app based clients. This is on purpose, the administrative/organizational users will make up a small fraction of the total user base of the system. Their use cases are also different from reqular users, thus it makes sense for them to have separate APIs for accessing relevant services, with their own authentication mechanism.
+**Note**
+In the above diagram, the API layer only serves requests from public mobile-app based clients. This is on purpose, the administrative/organizational users will make up a small fraction of the total user base of the system. Their use cases are also different from reqular users, thus it makes sense for them to have separate APIs for accessing relevant services. Identity, access control and authentication mechanisms for administrative users are also significantly different from those of public users who do not have access to internal infrastructure, data and services. 
 
 ### Coupling and Architecture Quanta
 Finally we close out the service containers section with a discussing of coupling between the services and architecure quanta. 
@@ -147,6 +171,7 @@ Since the API layer is simply a proxy, it does not include any domain specific f
 The following diagram illustrates how the remaining services are coupled, that databases they own or share, and the domain entities in those databases.
 
 ![quanta](/Diagrams/quanta.png)
+*Figure 9 Coupling and Quanta*
 
 **Static Coupling**
 + The ETL service and the Rewards Manager microservice are statically coupled through a shared database. We could make a case for separating transactions from master data into two separate databases, where ETL only writes to the master database and Rewards manager only reads from it as shown in the diagram. This however does not do much to reduce the contract coupling introduced by shared data they have to work with. The diagram shows to separate databases for clarity and semantic reasons
@@ -164,7 +189,7 @@ The following section describes the internal components of each microservice ide
 ### Identity and Access Manager
 The IAM service encapsulates the components that handle identity provisioning, account creation and session management. The implementation of a custom ad-hoc password based registration and authentication component is optional and not recommended.  
 The recommended approach is to register the service with a cloud based OpenID Connect provider and adapt an OIDC client library to provision an identity and then request it once the user authenticates. 
-Hey Blue! may later implement it's own OpenID Connect system to replace the cloud based provider if it becomes cost prohibitive  
+Hey Blue! may later [implement it's own OpenID Connect](https://openid.net/developers/certified/) system to replace the cloud based provider if it becomes cost prohibitive  
 The user will also be allowed to sign in using their social media accounts, in which case the service will request identity attributes from the social media identity provider.  
 All federated identity providers must be able to provide a common set of identity attributes (minimally name and email id) for the user.  
 An additional factor may be added to verify the user's phone number with a one time password to complete user self registration.  
@@ -173,6 +198,7 @@ Once all of the above steps an account will be created and the user will be aske
 A valid session token gives the user access to all interfaces exposed by the API layer and should be part of the URI for all post authentication requests. 
 
 ![IAM](/Diagrams/iam.png)
+*Figure 10 Identity & Access Manager*
 
 ### Profile Manager
 The profile manager is responsible for creating and maintaining the public profile for all users. Once an account is provisioned and the user logs in, a default profile automatically created and the user is directed to update it.
@@ -180,7 +206,7 @@ The service encapsulates a query based CRUD component to make the profile change
 Besides this, we also apply profile updates that happen due to various events triggered within the system as a result of user actions. See [ADR05-CQRS-EventSourcing](/ADRs/ADR05-CQRS-EventSourcing.md)
 
 ![Profile Manager](/Diagrams/profile.png)
-*Figure x Profile Manager*
+*Figure 11 Profile Manager*
 
 ### Connections Manager
 The connection manager is the most intricate part of the system. The need for it to be horizantally scalable is crucial given the amount of real time connections and requests it will handle at scale from all over the United States.
@@ -188,6 +214,7 @@ In our proposed architecture, each instance of the Connections manager service w
 The service itself comprises of an Orchestrator component and a message processor. The Orchestrator keeps track of free and busy websocket connections by getting notifications from the Message Processor.
 
 ![Connections Manager](/Diagrams/connection.png)
+*Figure 12 Connections Manager*
 
 The following sections describes the overall workflow, the differences between how the server and app handle citizen and officer requests should be noted
 
@@ -208,9 +235,10 @@ The following sections describes the overall workflow, the differences between h
 + App sends location updates to the server over the websocket connection, message processor looks up the location of the closest police officer from the in-memory graph store and sends it over the same connection, along with other relevant profile data.
 + The message processor is responsible for removing the officer's location from the in-memory cache once the app notifies with a message. Once the 15 minute window expires the websocket connection is closed and the orchestrator is notified. Orchestrator removes the tuple it added earlier from it's local db.
 
-Above workflow is illustrated in the following sequence diagram
+The workflow described above is illustrated in the following sequence diagram
 
 ![connectionWorkflow](/Diagrams/connectionSeq.png)
+*Figure 13 Connection Workfkow*
 
 **Proximity Detection**  
 Proximity detection can happen in of two ways
@@ -221,9 +249,12 @@ Bluetooth based proximity detection does not require a constantly sending and re
 
 The other method is to calculate proximity on the server and then allow the citizen to request a connection when they are within the threshold. There are a couple of benefits to this latter approach
 1. User's bluetooth need not be on at all times
-2. Since both officer and citizen geolocations are being tracked, they be rendered on a map, enhancing usability 
+2. Since both officer and citizen geolocations are being tracked, they can be rendered on a map, enhancing usability. The will not be possible with device detected proximity 
+
+As mentioned earlier, we proposed using graph data structures to store and lookup officer locations on the server. Using graphs makes proximity calculation faster when compared to a table based lookup at the expense of lower performance when adding or removing locations from the graph.
 
 ![latlonggraph](/Diagrams/latlongGraph.png)
+*Figure 14 Geolocation Graph*
 
 **Handling Notifications**  
 Our architecture recommends using device triggered notifications along with server pushed notifications (See  [ADR07-Device trigerred notifications](/ADRs/ADR07-Device-triggered-notifications.md)).
@@ -237,38 +268,58 @@ The Rewards manager is responsible handling point redemptions and donations by C
 The service intially serves the data for the views where the users can make these transactions. The Storefront offers, municipal schemes and Charity views are made available to users on the app, the users can then choose how they may use the points they have accrued by making connections.
 Whenever a points transaction is recorded, a representation of the event is put into the outbound channel to be consumed by the profile manager to update the relevant user profiles. The event itself may include data about the nature of the transaction along with discounts or schemes that were availed, coupons or vouchers generated as part of the transaction.
 ![Rewards Manager](/Diagrams/rewards.png)
+*Figure 15 Rewards Manager*
+
 ### ETL Manager
 The ETL manager is a relatively straightforward part of the system, it is only meant to be used by administrative users to upload the organizational data related to Retailers (storefronts,discounts), Municipalites (municipal points related schemes) and Charities. Another possible use case for ETL could be bulk loading Officer accounts and profile data from precinct IT departments, so individual officers don't need to do it themselves.
 As such the ETL manager encapsulates connectors for incoming data sources, and rules for data sanitization and validation
 
 ![ETL Components](/Diagrams/etl.png)
+*Figure 16 ETL Manager*
+
 ### Reporting and Analytics Manager
 The purpose of reporting and analytics is to maintain a data warehouse on which it may perform dimension based (temporal, geographical) analytics and report generation. It therefore contains OLAP querying components as well as jobs to run aggregation and report generation tasks.  
 Our architecture includes an event stream from the profile manager to be consumed be Reporting and Analytics that allows it to have the latest conections and rewards related data, along with profile attributes of related users available for analysis and reporting . See [ADR05-CQRS-EventSourcing](/ADRs/ADR05-CQRS-EventSourcing.md)
 
 ![Reporting and Analytics](/Diagrams/reporting.png)
+*Figure 17 Reporting and Analytics*
+
 ### Social Media API Manager
 Most social media platforms allow posting data through REST based APIs. The social media API manager encapsulates the client libraries for the APIs of the platforms where Hey Blue! does it promotion. Third party tools such as Zapier provide social media workflow integration out of the box, in which case the service would encapsulate the the relevant third party client libraries instead
 
 ![Social Media API](/Diagrams/social.png)
+*Figure 18 Social Media API Manager*
 
 ## Deployment
-The next diagram models a sample deployment of the Hey Blue! system on the Google Cloud Platform. A brief overview of the involved GCP services follows
+The next diagram models a sample deployment of the Hey Blue! system on the Google Cloud Platform. A brief overview of the involved GCP services follows, along with other major cloud alternatives
 
 ![gcp](/Diagrams/gcp.png)
+*Figure 19 GCP Deployment Architecture*
 
-The Cloud Run GCP service is meant for deploying containerized applications with support for horizontal scaling, load balancing and maintenance of minimum active instances. Cloud run would be used for deploying the Connections, Profile and Rewards microservices.
+Cloud Run is GCP’s default server less product. It is meant for deploying containerized applications with support for horizontal scaling, load balancing and maintenance of minimum active instances in a fully cloud managed Kubernetes Cluster. In the model, cloud run is used for deploying the Connections, Profile and Rewards microservices along with the administrative dashboard application.  
++ Microsoft Cloud Alternative: Azure Container instances  
++ Amazon Cloud Alternative: AWS Lambda
 
-The API gateway allows registration of endpoints for services deployed on GCP (such as Cloud Run) and allows authentication, routing, monitoring, alerting, logging, and tracing of calls to registered services. The API gateway can authenticate requests via the Firebase authentication service, which can completely stand in for the IAM service described in our architecture.
+The API gateway allows registration of endpoints for services deployed on GCP (such as Cloud Run) and allows authentication, routing, monitoring, alerting, logging, and tracing of calls to registered services. The API gateway can authenticate requests via the Firebase authentication service, which can completely stand in for the IAM service described in our architecture.  
++ Microsoft Cloud Alternative: Azure Application Gateway  
++ Amazon Cloud Alternative: AWS API Gateway
 
-The Pub/Sub service allows asynchronous, low latency message based communication between deployed services. We can use Pub/Sub to implement event queues and topics for async inter-service communication
+The Pub/Sub service allows asynchronous, low latency message based communication between deployed services. We can use Pub/Sub to implement event queues and topics for async inter-service communication  
++ Microsoft Cloud Alternative: Azure Service Bus and related products  
++ Amazon Cloud Alternative: Amazon SQS
 
-BigQuery is GCPs big data analytics and machine learning platform. It allows ingesting event streams directly from Pub/Sub
+BigQuery is GCPs big data analytics and machine learning platform. It allows ingesting event streams directly from Pub/Sub.
++ Microsoft Cloud Alternative: Azure Synapse analytics, HDInsight  
++ Amazon Cloud Alternative: AWS Redshift
 
-Cloud Data Fusion is GCPs most basic ETL service that provides support for pre-built as well as custom transformations and connectors that should suffice for most ETL use cases. 
+Cloud Data Fusion is GCPs most basic ETL service that provides support for pre-built as well as custom transformations and connectors that should suffice for most ETL use cases.  
++ Microsoft Cloud Alternative: Azure Data Factory  
++ Amazon Cloud Alternative: AWS ETLeap, AWS Glue
 
 ## Cost Analysis
-Estimated cost analysis per month for 50000 Monthly active Users
+Actual cost of cloud services depends on implementation specific details such as network ingress/egress, CPU and memory usage etc, it can only be determined after building and staging the services on the clould platform.
+
+An estimated Google Cloud cost analysis per month for 50000 Monthly active Users follows, obtained by pricing calculators for individual services
 
 API gateway - 3000 calls per month per user
 $3 per million calls * ((50000*3000)/1000000) = $450
@@ -285,10 +336,17 @@ Pub/Sub Lite
 
 Total Estimated Cost per month 450 + 1000 + 1260 = $2780
 
-## Risks and Architecture Fitness
+## Evaluation, Risks and Architecture Fitness  
+This final section is a discussion of how the proposed architecture adheres to the initially chosen driving characteristics, the associated trade-offs and risks. It highlights the areas that must be continuosly be tested and evaluated against benchmarks through fitness functions, ideally as part of the CI/CD pipeline.
 
-any mechanism that performs an objective integrity assessment of some architecture characteristic or combination of architecture characteristics.
+*Evaluating the architecture against driving caharacteristics*  
++ Scalability - Domain functionality with high scalability requirements are isolated into stateless microservices. The Connections service is meant to be the most compute intensive, serving higher traffic than others, it is therefore designed to be stateless with no associated persistent data store. Fitness tests for scalability will involve running tests against staging clusters with simulated web traffic
++ Performance - We mitigate network lanency related performace issues with rffective domain partitioning of data and services and avoiding distributed transactions. Individual services can be tested and benchmarked for perfomance 
++ Extensibility - The combination of Microservices, event driven communication and serverless depolyment lends itself well to an extensible architecture, allowing new components and services to be introduced to serve additional requirements and use cases. However, it is difficult to test a system for extensibilty, strict adherence to loose coupling and high cohesion between components is needed.
 
+*Risks*
++ Databases could be a bottleneck to horizontal scalability. Sharding and replication tools are possible mitigation strategies
++ Testability of event driven workflows involving multiple services. Tests for individual microservices will also need to include comprehensive cases for distributed workflows
 
 ## ADRs
 [ADR1 Microservices Architecture](/ADRs/ADR01-Microservices-architecture.md)  
@@ -300,13 +358,14 @@ any mechanism that performs an objective integrity assessment of some architectu
 [ADR7 Device triggered notications with geofencing](/ADRs/ADR07-Device-triggered-notifications.md)  
 
 ## References
-### C4 Model [External link](https://c4model.com/)
-### Hexagonal Architecture [External link](https://alistair.cockburn.us/hexagonal-architecture/)
-https://learning.oreilly.com/videos/oreilly-software-architecture/9781492050728/9781492050728-video328572/
+[C4 Model](https://c4model.com/)  
+[Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)  
+[Fundamentals of Software Architecture](https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/)  
+[Building Microservices](https://learning.oreilly.com/library/view/building-microservices-2nd/9781492034018/)  
+[Building Evolutionary Architectures](https://learning.oreilly.com/library/view/building-evolutionary-architectures/9781491986356/)  
+[Building Event-Driven Microservices](https://learning.oreilly.com/library/view/building-event-driven-microservices/9781492057888/)  
+[Architecture: The Hard Parts](https://alistair.cockburn.us/hexagonal-architecture/)  
 
-
-
-https://openid.net/developers/certified/
 
 
 
