@@ -68,11 +68,11 @@ The following section highlights the salient architecure characteristics we cons
 
 | Top 3 | Characteristics | Rationale |
 | ----------- | ----------- | ----------- |
-| - [x] | Scalability | At scale the system or certain components of it will need to serve millions of geographically distributed users. Building those components to be able to scale horizontally is vital to success |
+| - [x] | Scalability | At scale the system or certain components of it will need to serve millions of geographically distributed users. Building those components to be able to be horizontally scalable is vital to success |
 | - [] | Portability | We need to avoid vendor or technology lock-in as the system scales to serve a growing user base |
 | - [] | Upgradeability | Closely related to portability, we need to be able to enhance the system from a minimum viable product. This may require incorporating additional tools and frameworks, changes to continuous delivery pipelines, deploying on newer platforms etc |
 | - [x] | Extensibility | Once the system is being used by a critical mass of users, and the affiliate marketing business model is successful, it is very likely we will need to implement new functionality |
-| - [x] | Performance | The system is required to handle high traffic with and complete complex time-sensitive workflows. Performance requirements for certain components need to be enforced by explicit architecture fitness functions |
+| - [x] | Performance | The system is required to handle high traffic volumes and complete complex time-sensitive workflows. Performance requirements for certain components need to be enforced by explicit architecture fitness functions |
 | - [] | Availability | The system needs to be availiable at all times |
 
 ### Implicit Characteristics
@@ -81,7 +81,7 @@ We are transmitting and maintaining user's personal data such as their emails, p
 **Usability**    
 The system is meant to accessed via mobile apps primarily by non-technical users. The need for it to be intuitive and usable is implicit.  
 **Cost**  
-This is project is for a non-profit business. Cost of development, infrastructure requisition and maintenance is are implicit concerns
+This project is for a non-profit business. Cost of development, infrastructure requisition and maintenance are implicit concerns
 ### Others Considered
 **Reliability**
 While the system is not mission critical, and cost of downtime is low, it still needs to be reliable enough to serve it's existing user base and onboard new ones without service interruptions  
@@ -90,7 +90,7 @@ In case of service downtime, the system needs to be able to recover in a consist
 
 
 ## Architecture Approach
-+ We begin eith identifying the significant architecture characteristics relevant to our proposed solution, these will be the driving factors that impact our design and architecure decisions
++ We begin with identifying the significant architecture characteristics relevant to our proposed solution, these will be the driving factors that impact our design and architecure decisions
 + We will use the C4 model to describe our solution initially treating the system as black box while identifying external actors and use cases. At each subsequent level we will zoom into the black box to describe the containers, its consitituent components, their inter-dependencies and communcation mechanisms
 + We use the event storming process to determine the bounded contexts and aggregates within the proposed system.
 + We will compose the architecture as a set of cohesive microservices with both synchronous and event driven communication mechanisms. We will desribe these microservices in a tool and technology agnostic manner, see [ADR1 - Microservices Architecture](ADRs/ADR01-Microservices-architecture.md).
@@ -98,7 +98,7 @@ In case of service downtime, the system needs to be able to recover in a consist
 ### Goals
 **"Microservices are not the goal, you don't win by having microservices"** - Sam Newman
 
-+ The architecture we describe here is not meant to be prescriptive. The Hey Blue! system could even be developed and deployed as a modular monolith, combining all services to run on a single container, which could then be scaled by deploying multiple instances of it. This could indeed be the approach taken initially for rapidly prototyping a minimum viable product at a reduced overall cost of development.
++ The architecture we describe here is not meant to be prescriptive. The Hey Blue! system could even be developed and deployed as a modular monolith, combining all bounded contexts in a single container, which could then be scaled by deploying multiple instances of it. This is a viable approach that can be taken initially for rapidly prototyping a minimum viable product at a reduced overall cost of development.
 + We apply the priciple of Hexagonal Architecture to model individual microservices. The internal components or "ports" within a microservice expose one or more interfaces or "adapters" that serve the needs of downstream consumers. For example, some component within a microservice may expose it's functionality over a REST, SOAP or RPC based interface. We may maintain multiple adapters for a single port at the same time or swap out the port if the need arises without the adapter having to change. Interface definition is thus pushed out to be an extrinsic configuration concern. Also see [ADR02 - Hexagonal Microservices](ADRs/ADR02-Hexagonal-microservices.md)
 + We will attempt to keep our architectural description tool and framework agnostic. As mentioned before we want to avoid early lock in with specfic tools. To that end, all intra, inter, and extra service communication APIs will be described in language agnostic terms. See [ADR03 - REST over http and websockets](ADRs/ADR03-Rest-over-http-and-websockets.md)
 
@@ -143,7 +143,7 @@ The above diagram gives us the boundaries of our bounded contexts and the event 
 
 ## Containers
 ### Modular Monolith
-The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.s
+The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.
 ![Modular Monolith](/Diagrams/modMono.png)
 *Figure 6 Modular Monolith*
 
@@ -346,7 +346,7 @@ This final section is a discussion of how the proposed architecture adheres to t
 
 *Evaluating the architecture against driving caharacteristics*  
 + Scalability - Domain functionality with high scalability requirements are isolated into stateless microservices. The Connections service is meant to be the most compute intensive, serving higher traffic than others, it is therefore designed to be stateless with no associated persistent data store. Fitness tests for scalability will involve running tests against staging clusters with simulated web traffic
-+ Performance - We mitigate network lanency related performace issues with rffective domain partitioning of data and services and avoiding distributed transactions. Individual services can be tested and benchmarked for perfomance 
++ Performance - We mitigate network latency related performace issues with effective domain partitioning of data and services and avoiding distributed transactions. Individual services can be tested and benchmarked for perfomance 
 + Extensibility - The combination of Microservices, event driven communication and serverless depolyment lends itself well to an extensible architecture, allowing new components and services to be introduced to serve additional requirements and use cases. However, it is difficult to test a system for extensibilty, strict adherence to loose coupling and high cohesion between components is needed.
 
 *Risks*
