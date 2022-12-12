@@ -2,7 +2,7 @@
 
 This is a team submission for O'Reilly Architecture Katas fall 2022.
 
-![1p](/Diagrams/1p.png)
+![1p](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/1p.png)
 
 Team Members:  
 Aryaveer Singh  
@@ -108,7 +108,7 @@ In case of service downtime, the system needs to be able to recover in a consist
 
 Figure 1 shows how our top 3 architecture characteristics score against formal system architecture styles.
 
-![characteristics](/Diagrams/characteristics.png)
+![characteristics](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/characteristics.png)
 *Figure 1 Architecture Characteristics*
 
 + It is incidental that the architectural styles we have chosen have scored the highest number of stars against the top 3 chosen characteristics.
@@ -123,22 +123,22 @@ We start modelling the architecture of the system by envisioning the entire syst
 ### Actors and Use Cases
 The users of the application fall into 2 categories. The public users will interact with the system using a mobile app, while the administrative and organisational use cases are more back end related, like data upload and ETL, reporting etc. Admin/Org users will interact with the system through a web based dashboard.  
 
-![blackBox](/Diagrams/blackbox.png)
+![blackBox](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/blackbox.png)
 *Figure 2 Use Cases*
 
 ### Event Storming
 The next step is zooming into the black box. The prerequisite to our goal of modelling the system as a set of independent microservices is to start with domain partitioning. To accomplish this we used the event storming process.
 Event-storming begins with initially identifying "Domain Events". A Domain event is something that happens within the system. It is described by a ubiquitous language entity followed by a verb or action on that entity. Each use case in Figure 2 maps to one or more domain events shown here. As per the process, we identify as many domain events as we can and put each one on an orange sticky note on a virtual whiteboard.
 
-![Ad-Hoc Domain Events](/Diagrams/domainEvents.png)
+![Ad-Hoc Domain Events](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/domainEvents.png)
 *Figure 3 Domain Events*
 
 Subsequently we identify the commands that trigger these domain events. While a domain event is something that happens within the system, the command is the action that triggers a series of domain events. Commands invoked by external actors are explicitly identified. Certain commands do not have an associated actor, which implies that it was invoked internally within the system. We organise the related sets of commands  and domain events together into sets of related aggregates.
-![adding commands](/Diagrams/commandsAndActors.png)
+![adding commands](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/commandsAndActors.png)
 *Figure 4 Commands, Actors and Aggregates*
 
 Next we determine the automation policies for the commands that do not have an associated external actor and are triggered when a certain domain event completes. The automation policies indicate asynchronous communication coupling between the bounded contexts. Grouping the semantically related aggregates together gives us the bounded contexts and the blueprint for individual microservices. 
-![bounded contexts](/Diagrams/automationPolicies.png)
+![bounded contexts](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/automationPolicies.png)
 *Figure 5 Automation Policies and Bounded Contexts*
 
 The above diagram gives us the boundaries of our bounded contexts and the event driven connections between them
@@ -146,7 +146,7 @@ The above diagram gives us the boundaries of our bounded contexts and the event 
 ## Containers
 ### Modular Monolith
 The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.
-![Modular Monolith](/Diagrams/modMono.png)
+![Modular Monolith](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/modMono.png)
 *Figure 6 Modular Monolith*
 
 ### Service Containers
@@ -155,13 +155,13 @@ The previous section described a single container, comprising of multiple module
 **Note**   
 Synchronous communication coupling between the services is omitted from this diagram for clarity, but it is shown in figure 9 and discussed in the related section
 
-![Service Containers](/Diagrams/containers.png)
+![Service Containers](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/containers.png)
 *Figure 7 Service Containers*
 
 ### API Layer
 Next, we add an API layer to extract the publically accessible interface of the system. Instead of external users directly connecting to the individual services via a GUI, all external requests will be routed through the API layer. Also see [ADR04-API-layer](/ADRs/ADR04-API-Layer.md)
 
-![API Layer](/Diagrams/apiLayer.png)
+![API Layer](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/apiLayer.png)
 *Figure 8 API Layer*
 
 **Note**  
@@ -175,7 +175,7 @@ Since the API layer is simply a proxy, it does not include any domain specific f
 
 The following diagram illustrates how the remaining services are coupled, that databases they own or share, and the domain entities in those databases.
 
-![quanta](/Diagrams/quanta.png)
+![quanta](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/quanta.png)
 *Figure 9 Coupling and Quanta*
 
 **Static Coupling**
@@ -204,7 +204,7 @@ The final step in account creation is registering the user's phone number with a
 Once all of the above steps an account will be created and the user will be asked to authenticate. Post authentication, the account provisioning component will create a session and issue a session token to the user which will only expire if the user explicitly logs out. Session storage will also store a refresh token  
 A valid session token gives the user access to all interfaces exposed by the API layer and should be part of the URI for all post authentication requests. 
 
-![IAM](/Diagrams/iam.png)
+![IAM](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/iam.png)
 *Figure 10 Identity & Access Manager*
 
 ### Profile Manager
@@ -212,7 +212,7 @@ The profile manager is responsible for creating and maintaining the public profi
 The service encapsulates a query based CRUD component to make the profile changes requested by the user.
 Besides this, we also apply profile updates that happen due to various events triggered within the system as a result of user actions. See [ADR05-CQRS-EventSourcing](/ADRs/ADR05-CQRS-EventSourcing.md)
 
-![Profile Manager](/Diagrams/profile.png)
+![Profile Manager](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/profile.png)
 *Figure 11 Profile Manager*
 
 ### Connections Manager
@@ -220,7 +220,7 @@ The connection manager is the most intricate part of the system. The need for it
 In our proposed architecture, each instance of the Connections manager service will serve requests from multiple zip codes.  
 The service itself comprises of an Orchestrator component and a message processor. The Orchestrator keeps track of free and busy websocket connections by getting notifications from the Message Processor.
 
-![Connections Manager](/Diagrams/connection.png)
+![Connections Manager](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/connection.png)
 *Figure 12 Connections Manager*
 
 The following sections describes the overall workflow, the differences between how the server and app handle citizen and officer requests should be noted
@@ -244,7 +244,7 @@ The following sections describes the overall workflow, the differences between h
 
 The workflow described above is illustrated in the following sequence diagram
 
-![connectionWorkflow](/Diagrams/connectionSeq.png)
+![connectionWorkflow](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/connectionSeq.png)
 *Figure 13 Connection Workfkow*
 
 **Proximity Detection**  
@@ -260,7 +260,7 @@ The other method is to calculate proximity on the server and then allow the citi
 
 As mentioned earlier, we proposed using graph data structures to store and lookup officer locations on the server. Using graphs makes proximity calculation faster when compared to a table based lookup at the expense of lower performance when adding or removing locations from the graph.
 
-![latlonggraph](/Diagrams/latlongGraph.png)
+![latlonggraph](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/latlongGraph.png)
 *Figure 14 Geolocation Graph*
 
 **Handling Notifications**  
@@ -274,33 +274,33 @@ Once a citizen is notified they are close to an officer accepting connections, t
 The Rewards manager is responsible handling point redemptions and donations by Citizens and Officers respectively.
 The service intially serves the data for the views where the users can make these transactions. The Storefront offers, municipal schemes and Charity views are made available to users on the app, the users can then choose how they may use the points they have accrued by making connections.
 Whenever a points transaction is recorded, a representation of the event is put into the outbound channel to be consumed by the profile manager to update the relevant user profiles. The event itself may include data about the nature of the transaction along with discounts or schemes that were availed, coupons or vouchers generated as part of the transaction.
-![Rewards Manager](/Diagrams/rewards.png)
+![Rewards Manager](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/rewards.png)
 *Figure 15 Rewards Manager*
 
 ### ETL Manager
 The ETL manager is a relatively straightforward part of the system, it is only meant to be used by administrative users to upload the organizational data related to Retailers (storefronts,discounts), Municipalites (municipal points related schemes) and Charities. Another possible use case for ETL could be bulk loading Officer accounts and profile data from precinct IT departments, so individual officers don't need to do it themselves.
 As such the ETL manager encapsulates connectors for incoming data sources, and rules for data sanitization and validation
 
-![ETL Components](/Diagrams/etl.png)
+![ETL Components](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/etl.png)
 *Figure 16 ETL Manager*
 
 ### Reporting and Analytics Manager
 The purpose of reporting and analytics is to maintain a data warehouse on which it may perform dimension based (temporal, geographical) analytics and report generation. It therefore contains OLAP querying components as well as jobs to run aggregation and report generation tasks.  
 Our architecture includes an event stream from the profile manager to be consumed be Reporting and Analytics that allows it to have the latest conections and rewards related data, along with profile attributes of related users available for analysis and reporting . See [ADR05-CQRS-EventSourcing](/ADRs/ADR05-CQRS-EventSourcing.md)
 
-![Reporting and Analytics](/Diagrams/reporting.png)
+![Reporting and Analytics](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/reporting.png)
 *Figure 17 Reporting and Analytics*
 
 ### Social Media API Manager
 Most social media platforms allow posting data through REST based APIs. The social media API manager encapsulates the client libraries for the APIs of the platforms where Hey Blue! does it promotion. Third party tools such as Zapier provide social media workflow integration out of the box, in which case the service would encapsulate the the relevant third party client libraries instead
 
-![Social Media API](/Diagrams/social.png)
+![Social Media API](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/social.png)
 *Figure 18 Social Media API Manager*
 
 ## Deployment
 The next diagram models a sample deployment of the Hey Blue! system on the Google Cloud Platform. A brief overview of the involved GCP services follows, along with other major cloud alternatives
 
-![gcp](/Diagrams/gcp.png)
+![gcp](https://raw.githubusercontent.com/mynksnh/ArchKatas2022/master/Diagrams/gcp.png)
 *Figure 19 GCP Deployment Architecture*
 
 Cloud Run is GCP’s default server less product. It is meant for deploying containerized applications with support for horizontal scaling, load balancing and maintenance of minimum active instances in a fully cloud managed Kubernetes Cluster. In the model, cloud run is used for deploying the Connections, Profile and Rewards microservices along with the administrative dashboard application.  
