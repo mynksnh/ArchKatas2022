@@ -2,7 +2,7 @@
 
 This is a team submission for O'Reilly Architecture Katas fall 2022.
 
-![1p](/Diagrams/1p.png)
+![1p](Diagrams/1p.png)
 
 Team Members:  
 Aryaveer Singh  
