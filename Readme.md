@@ -204,7 +204,7 @@ The final step in account creation is registering the user's phone number with a
 Once all of the above steps an account will be created and the user will be asked to authenticate. Post authentication, the account provisioning component will create a session and issue a session token to the user which will only expire if the user explicitly logs out. Session storage will also store a refresh token  
 A valid session token gives the user access to all interfaces exposed by the API layer and should be part of the URI for all post authentication requests. 
 
-![IAM](/Diagrams/iam.png)
+![IAM](/Diagrams/IAM.png)
 *Figure 10 Identity & Access Manager*
 
 ### Profile Manager
