@@ -146,7 +146,7 @@ The above diagram gives us the boundaries of our bounded contexts and the event 
 ## Containers
 ### Modular Monolith
 The event storming process described in the previous section allowed us to identify the bounded contexts of our system and the aggregates (components) within them. We now map each bounded context to be a module of our overall system. The resulting modular monolith is depicted in the following diagram.
-![Modular Monolith](/Diagrams/modMono.png)
+![Modular Monolith](/Diagrams/modmono.png)
 *Figure 6 Modular Monolith*
 
 ### Service Containers
